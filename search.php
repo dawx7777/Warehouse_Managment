@@ -47,7 +47,7 @@ if(!isset($_SESSION['zalogowany']))
    <input type="text" placeholder="Wprowadź indeks lub nazwe produktu">
    <button><i class="fa fa-search"></i></button>
    -->
-        <form action="search.php" method="GET">			<!-- Wywołanie funkcji szukaj z przeslaniem GET aby kontynuuowac w innym pliku -->
+        <form action="search.php" method="POST">			<!-- Wywołanie funkcji szukaj z przeslaniem GET aby kontynuuowac w innym pliku -->
     
 			Podaj numer indeksu: 	<input type="text" name="query" /> <input type="submit" value="Wyszukaj" />
 			
@@ -57,18 +57,19 @@ if(!isset($_SESSION['zalogowany']))
 
 
 
-
+<div class="result">
    <?php
 
 	//////////////////////////////////////////////////////////
 require_once "connect.php";
 $polaczenie = @new mysqli($host, $db_user, $db_password, $db_name);
 if ($polaczenie->connect_errno!=0) die ("Error: ".$polaczenie->connect_errno);
+$output='';
+
+$id = $_POST['query']; 
 
 
-$id = $_GET['query']; 
-
-	$query = "SELECT * FROM produkt WHERE idProdukt LIKE '".$id."' ";
+    $query= "SELECT produkt.idProdukt, produkt.nazwa, produkt.typ, produkt.nr_indeksu, produkt.ilosc, produkt.producent, skladowanie.rzad,skladowanie.miejsce_poziom,skladowanie.miejsce_pion, magazyn.nazwa_magazyn from (((produkt inner join produkt_has_skladowanie on produkt.idProdukt=produkt_has_skladowanie.Produkt_idProdukt) inner join skladowanie on skladowanie.idSkladowanie=produkt_has_skladowanie.Skladowanie_idSkladowanie) inner join magazyn on magazyn.idmagazyn=skladowanie.magazyn_idmagazyn) WHERE produkt.nr_indeksu  LIKE '%".$id."%' ";
 	  
 	 $wynik = $polaczenie->query($query);
 	if(!$wynik) die ("Brak dostępu do bazy danych.");
@@ -77,12 +78,13 @@ $id = $_GET['query'];
 	{   
 	echo "Dane poszukiwanego produktu"; //dodanie paska z historia wizyt
 	 while($results = $wynik->fetch_array($ile_znalezionych))
-		{        
-			echo "<p><h2>"."ID: ".$results['idProdukt']."</h2>"."Nazwa: ".$results['nazwa']."<br>Typ: ".$results['typ']."<br>Numer indeksu: ".$results['nr_indeksu']."<br>Ilość: ".$results['ilosc']."<br />Producent: ".$results['producent'].	"</p>";
-		
+		{    
+            for($i=0; $i < $ile_znalezionych; $i++){    
+			$output.= "<p><h2>"."ID: ".$results['idProdukt']."</h2>"."Nazwa: ".$results['nazwa']."<br>Typ: ".$results['typ']."<br>Numer indeksu: ".$results['nr_indeksu']."<br>Ilość: ".$results['ilosc']."<br />Producent: ".$results['producent'].	"<br />Magazyn: ".$results['nazwa_magazyn']."<br />Rząd: ".$results['rzad']."<br />Miejsce_poziom: ".$results['miejsce_poziom']."<br />Miejsce_pion: ".$results['miejsce_pion']."</p>";
+            }
 		
 		}
-		
+		echo $output;
 
 	}
 	else 
@@ -92,7 +94,7 @@ $id = $_GET['query'];
 
 
 ?>
-
+</div>
   
 
             <div class="table-responsive bs-example widget-shadow">
@@ -101,7 +103,7 @@ $id = $_GET['query'];
                 <?php
    $sort=$_GET['sort'];
    $polaczenie = @new mysqli($host, $db_user, $db_password, $db_name);
-                    $wynik=mysqli_query($polaczenie,"SELECT * FROM produkt ORDER BY produkt.idProdukt $sort");
+                    $wynik=mysqli_query($polaczenie,"SELECT produkt.idProdukt, produkt.nazwa, produkt.typ, produkt.nr_indeksu, produkt.ilosc, produkt.producent from ((((produkt inner join produkt_has_skladowanie on produkt.idProdukt=produkt_has_skladowanie.Produkt_idProdukt) inner join skladowanie on skladowanie.idSkladowanie=produkt_has_skladowanie.Skladowanie_idSkladowanie) inner join magazyn on magazyn.idmagazyn=skladowanie.magazyn_idmagazyn) INNER join pracownik on pracownik.magazyn_idmagazyn=magazyn.idmagazyn) where pracownik.email='$email' ORDER BY produkt.idProdukt $sort");
                 
                 $licz=1;
                 while ($rekord=mysqli_fetch_array($wynik)) {
@@ -125,8 +127,36 @@ $id = $_GET['query'];
    </div>
 
 
+   <script>
+   
+   $(document).ready(function(){
+       $('#query').keyup(function(){
 
+      
+       var txt=$(this).val();
+       if(txt != ''){
+
+
+       }
+       else{
+           $('#result').html('');
+           $.ajax({
+               url:"search.php",
+               method:"post",
+               data:{query:txt},
+               dataType:"text",
+               success:function(data){
+                   $('#result').html(data);
+               }
+           });
+       }
+   });
+});
+   </script>
 
 
 </body>
+
+
+
 </html>

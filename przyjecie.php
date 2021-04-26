@@ -111,7 +111,7 @@ if(isset($_POST['nr_index']))
 			
 			{
                 $_SESSION['udanarejestracja']=true;
-				header('Location: udanarejestracja.php'); 
+				header('Location: udanadodanie.php'); 
 			}
             $last_id=mysqli_insert_id($polaczenie);
             $polaczenie->query("INSERT INTO produkt_has_skladowanie () VALUES((SELECT produkt.idProdukt from produkt where nr_indeksu='$nr_index'),$last_id)");

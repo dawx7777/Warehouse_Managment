@@ -260,9 +260,9 @@ echo '<br />Informacja o blędzie: ',$e;
 			<label for="password">Wybór magazynu:</label>	
 
 			<select name="magazyn" id="input1">
-				<option value="1">Magazyn 1</option>
-				<option value="2">Magazyn 2</option>
-				<option value="3">Magazyn 3</option>
+			<option value="1">Magazyn Okien i Drzwi</option>
+				<option value="2">Magazyn Elektroniki</option>
+				<option value="3">Magazyn Napojów</option>
 			</select>
 
     

@@ -56,10 +56,16 @@ if(!isset($_SESSION['zalogowany']))
             <div class="table-responsive bs-example widget-shadow">
 						
 			<table class="table table-bordered"> <thead> <tr> <th>ID</th> <th>Nazwa</th> <th>Typ</th> <th>Numer indeksu</th> <th>Ilość</th> <th>Producent</th> </tr> </thead> <tbody>
+            
+	
+	
                 <?php
+              $email=$_SESSION['email'];
+
+
    $sort=$_GET['sort'];
    $polaczenie = @new mysqli($host, $db_user, $db_password, $db_name);
-                    $wynik=mysqli_query($polaczenie,"SELECT * FROM produkt ORDER BY produkt.idProdukt $sort");
+                    $wynik=mysqli_query($polaczenie,"SELECT produkt.idProdukt, produkt.nazwa, produkt.typ, produkt.nr_indeksu, produkt.ilosc, produkt.producent from ((((produkt inner join produkt_has_skladowanie on produkt.idProdukt=produkt_has_skladowanie.Produkt_idProdukt) inner join skladowanie on skladowanie.idSkladowanie=produkt_has_skladowanie.Skladowanie_idSkladowanie) inner join magazyn on magazyn.idmagazyn=skladowanie.magazyn_idmagazyn) INNER join pracownik on pracownik.magazyn_idmagazyn=magazyn.idmagazyn) where pracownik.email='$email' ORDER BY produkt.idProdukt $sort");
                 
                 $licz=1;
                 while ($rekord=mysqli_fetch_array($wynik)) {
@@ -76,5 +82,32 @@ if(!isset($_SESSION['zalogowany']))
 					</div>
                     
                 </div>
+
+                <script>
+   
+   $(document).ready(function(){
+       $('#query').keyup(function(){
+
+      
+       var txt=$(this).val();
+       if(txt != ''){
+
+
+       }
+       else{
+           $('#result').html('');
+           $.ajax({
+               url:"search.php",
+               method:"post",
+               data:{query:txt},
+               dataType:"text",
+               success:function(data){
+                   $('#result').html(data);
+               }
+           });
+       }
+   });
+});
+   </script>
 </body>
 </html>
