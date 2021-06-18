@@ -8,14 +8,13 @@
 	<a href="stan.php" class="list-group-item list-group-item-action bg-light2">Stan magazynowy</a>
 	
 	<a href="przyjecie.php" class="list-group-hover list-group-item list-group-item-action bg-light2 ">Przyjęcie produktu</a>
-	<a href="" class="list-group-item list-group-item-action bg-light2">Wystawienie faktury</a>
-	<a href="" class="list-group-item list-group-item-action bg-light2">Wyświetl raport</a>
-	<a href="" class="list-group-item list-group-item-action bg-light2">Wiadomości</a>
 
-	<a href="" class="list-group-item list-group-item-action bg-light2">Usługi</a>
+	<a href="raport.php" class="list-group-item list-group-item-action bg-light2">Wyświetl raport</a>
+	<a href="wydawanie.php" class="list-group-item list-group-item-action bg-light2">Wydaj towar</a>
 
-	<a href="" class="list-group-item list-group-item-action bg-light2 ">Pracownicy</a>
-	<a href="" class="list-group-item list-group-item-action bg-light2">Mój profil</a>
+	<a href="uslugi.php" class="list-group-item list-group-item-action bg-light2">Dodaj zamówienie</a>
+
+	<a href="pass_edit.php" class="list-group-item list-group-item-action bg-light2">Mój profil</a>
   </div>
 </div>
 

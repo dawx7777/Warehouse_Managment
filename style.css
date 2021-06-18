@@ -46,6 +46,7 @@ nav {
 }
 .button {
 	font-size: 16px;
+	font-family: poppins;
 	border: 2px solid #3a3768;
 	background: transparent;
 	  display: inline-block;

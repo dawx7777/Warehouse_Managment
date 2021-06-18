@@ -111,7 +111,7 @@ if(isset($_POST['nr_index']))
 			
 			{
                 $_SESSION['udanarejestracja']=true;
-				header('Location: udanadodanie.php'); 
+				header('Location: wydawanie.php'); 
 			}
             $last_id=mysqli_insert_id($polaczenie);
             $polaczenie->query("INSERT INTO produkt_has_skladowanie () VALUES((SELECT produkt.idProdukt from produkt where nr_indeksu='$nr_index'),$last_id)");
@@ -401,184 +401,16 @@ select.list-dt:focus {
     <div class="row justify-content-center mt-0">
         <div class="col-11 col-sm-9 col-md-7 col-lg-6 text-center p-0 mt-3 mb-2">
             <div class="card px-0 pt-4 pb-0 mt-3 mb-3">
-                <h2><strong>Przyjęcie towaru</strong></h2>
-                <p>Dodaj produkt i przypisz mu miejsce składowania</p>
+                <h2><strong>Historia operacji</strong></h2>
+                <p>Chronologiczna lista wydanych produktów</p>
                 <div class="row">
                     <div class="col-md-12 mx-0">
-                        <form id="msform" method="post">
-                            <!-- progressbar -->
-                            <ul id="progressbar">
-                                <li class="active" id="account"><strong>Produkt</strong></li>
-                                <li id="personal"><strong>Składowanie</strong></li>
-                                <li id="confirm"><strong>Zakończenie</strong></li>
-                            </ul> <!-- fieldsets -->
-                            <fieldset>
-                                <div class="form-card">
-                                    <h2 class="fs-title">Produkt</h2> 
-                                    <form method="post">
-                                    <input type="text"  name="produkt_nazwa" placeholder="Nazwa produktu"
-                                    value="<?php
-			if (isset($_SESSION['fr_produkt_nazwa']))
-			{
-				echo $_SESSION['fr_produkt_nazwa'];
-				unset($_SESSION['fr_produkt_nazwa']);
-			}
-        ?>"
-                                    /> 
-                                    <?php
-			if (isset($_SESSION['e_produkt_nazwa']))
-			{
-				echo '<div class="error">'.$_SESSION['e_produkt_nazwa'].'</div>';
-				unset($_SESSION['e_produkt_nazwa']);
-			}
-        ?>
-                                    <input type="text" name="rodzaj" placeholder="Rodzaj/Typ" 
-                                    value="<?php
-			if (isset($_SESSION['fr_rodzaj']))
-			{
-				echo $_SESSION['fr_rodzaj'];
-				unset($_SESSION['fr_rodzaj']);
-			}
-        ?>"
-                                    /> 
-                                    <?php
-			if (isset($_SESSION['e_rodzaj']))
-			{
-				echo '<div class="error">'.$_SESSION['e_rodzaj'].'</div>';
-				unset($_SESSION['e_rodzaj']);
-			}
-        ?>
-                                    <input type="number" name="nr_index" placeholder="Wprowadź numer identyfikacyjny(5 cyfr)"
-                                    value="<?php
-			if (isset($_SESSION['fr_nr_index']))
-			{
-				echo $_SESSION['fr_nr_index'];
-				unset($_SESSION['fr_nr_index']);
-			}
-        ?>"
-                                    />
-                                    <?php
-			if (isset($_SESSION['e_nr_index']))
-			{
-				echo '<div class="error">'.$_SESSION['e_nr_index'].'</div>';
-				unset($_SESSION['e_nr_index']);
-			}
-        ?>
-                                    <input type="number" name="ilosc" placeholder="Wprowadź ilość" 
-                                    value="<?php
-			if (isset($_SESSION['fr_ilosc']))
-			{
-				echo $_SESSION['fr_ilosc'];
-				unset($_SESSION['fr_ilosc']);
-			}
-        ?>"
-                                    />
-                                    <?php
-			if (isset($_SESSION['e_ilosc']))
-			{
-				echo '<div class="error">'.$_SESSION['e_ilosc'].'</div>';
-				unset($_SESSION['e_ilosc']);
-			}
-        ?>
-                                    <input type="text" name="producent" placeholder="Podaj producenta"
-                                    value="<?php
-			if (isset($_SESSION['fr_producent']))
-			{
-				echo $_SESSION['fr_producent'];
-				unset($_SESSION['fr_producent']);
-			}
-        ?>" />
-         <?php
-			if (isset($_SESSION['e_producent']))
-			{
-				echo '<div class="error">'.$_SESSION['e_producent'].'</div>';
-				unset($_SESSION['e_producent']);
-			}
-        ?>
-                                </div> <input type="button" name="next" class="next action-button" value="Dalej" />
-                            </fieldset>
-                            <fieldset>
-                                <div class="form-card">
-                                    <h2 class="fs-title">Miejsce składowania</h2> 
-                                    <label for="password">Wybór magazynu:</label>                   
-                                     
-            <?php 
-
-require_once "connect.php";
-mysqli_report(MYSQLI_REPORT_STRICT);
-
-
-    $polaczenie = new mysqli($host, $db_user, $db_password, $db_name);
-    if ($polaczenie->connect_errno!=0)
-    {
-        throw new Exception(mysqli_connect_errno());
-    }
-             $email=$_SESSION['email'];
-            $sql="SELECT magazyn.idmagazyn,magazyn.nazwa_magazyn from magazyn inner join pracownik on pracownik.magazyn_idmagazyn=magazyn.idmagazyn WHERE pracownik.email='$email'";
-            if($result=mysqli_query($polaczenie,$sql)){
-                if(mysqli_num_rows($result)>0){
-                    while($row=mysqli_fetch_array($result)){
-                        $dbselected=$row['nazwa_magazyn'];
-                        $idmagazynu=$row['idmagazyn'];
-
-                    }
-                }
-            }
-            
-            $options=array('1','2','3');
-            echo "<select name='magazyn' id='input1'>";
-            foreach($options as $option){
-                if($idmagazynu==$option){
-                    echo "<option value='$option'>$dbselected</option>";
-                }
-            }
-            echo "</select>";
-          
-           
-
-            ?>
-
-
-            <label for="password">Miejsce w rzędzie:</label>                   
-                                     <select name="rzad" id="input1">
-				<option value="1">Rząd 1</option>
-				<option value="2">Rząd 2</option>
-				<option value="3">Rząd 3</option>
-                <option value="4">Rząd 4</option>
-				<option value="5">Rząd 5</option>
-				<option value="6">Rząd 6</option>
-                <option value="7">Rząd 7</option>
-				<option value="8">Rząd 8</option>
-				<option value="9">Rząd 9</option>
-                <option value="10">Rząd 10</option>
-			</select>
-            <label for="password">Wybór miejsca w pionie:</label>                   
-                                     <select name="pion" id="input1">
-                <option value="1">Pion 1</option>
-				<option value="2">Pion 2</option>
-				<option value="3">Pion 3</option>
-                <option value="4">Pion 4</option>
-				<option value="5">Pion 5</option>
-				<option value="6">Pion 6</option>
-                <option value="7">Pion 7</option>
-				<option value="8">Pion 8</option>
-				<option value="9">Pion 9</option>
-                <option value="10">Pion 10</option>
-			</select>
-            <label for="password">Wybór miejsca w poziomie:</label>                   
-                                     <select name="poziom" id="input1">
-				<option value="1">Poziom 1</option>
-				<option value="2">Poziom 2</option>
-				<option value="3">Poziom 3</option>
-                <option value="4">Poziom 4</option>
-			</select>
-                                
-                                            
-            
-        </div> <input type="button" name="previous" class="previous action-button-previous" value="Wstecz" /> <input type="submit" name="make_send" class="next action-button" value="Zapisz" />
-        </form>
-                            </fieldset>
-                           
+                    
+                  
+                           <form action="wydane.php" method="POST">
+                            <button type="submit" style="width: 300px"name="btn_pdf_wydane" class="button"  ><span>Wyświetl historie operacji</span></button>
+                           </form>
+                           </br></br>
                             
                     </div>
                 </div>

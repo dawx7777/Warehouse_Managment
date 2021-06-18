@@ -7,71 +7,47 @@ if(!isset($_SESSION['zalogowany']))
 }
 ?>
 <?php
-if(isset($_POST['nr_index']))
+if(isset($_POST['imie']))
 {
     
                                                 
      $wszystko_OK=true;
-             
 
-        $produkt = $_POST['produkt_nazwa'];
-		 $rodzaj = $_POST['rodzaj'];
-         $nr_index = $_POST['nr_index'];
-         $ilosc = $_POST['ilosc'];
-         $producent = $_POST['producent'];
+         
+        $imie=$_POST['imie'];
+        $nazwisko=$_POST['nazwisko'];
+        $data_wydania=$_POST['data_wydania'];
+      
 													
-		 if($produkt == "") 
+		
+
+        if($imie == "") 
 		{
 			 $wszystko_OK=false;
-			 $_SESSION['e_produkt_nazwa']="Nie wprowadzono danych!";
+			 $_SESSION['e_imie']="Nie wprowadzono danych!";
 		}
-		if($rodzaj == "") 
+        if($nazwisko == "") 
 		{
 			 $wszystko_OK=false;
-			 $_SESSION['e_rodzaj']="Nie wprowadzono danych!";
+			 $_SESSION['e_nazwisko']="Nie wprowadzono danych!";
 		}
-		if($nr_index == "") 
+        if($data_wydania == "") 
 		{
 			 $wszystko_OK=false;
-			 $_SESSION['e_nr_index']="Nie wprowadzono danych!";
+			 $_SESSION['e_data_wydania']="Nie wprowadzono danych!";
 		}
-
-		if($ilosc == "") 
-		{
-			 $wszystko_OK=false;
-			 $_SESSION['e_ilosc']="Nie wprowadzono danych!";
-		}
-
-
-
-		if($producent == "") 
-		{
-			 $wszystko_OK=false;
-			 $_SESSION['e_producent']="Nie wprowadzono danych!";
-		}
-
-        
       
         
-                                                   //spawdzenie dlugosci hasla
-        if (strlen($nr_index)!=5)
-        {
-            $wszystko_OK=false;
-            $_SESSION['e_nr_index'] = "Numer indeksu musi się składać z 5 cyfr !!";
-        }
+                                                   
+      
 
-        $_SESSION['fr_produkt_nazwa'] = $produkt;
-		$_SESSION['fr_rodzaj'] = $rodzaj;
-		$_SESSION['fr_nr_index'] = $nr_index;
-		$_SESSION['fr_ilosc'] = $ilosc;
-		$_SESSION['fr_producent'] = $producent;
+        
 
-
+        $_SESSION['fr_imie'] = $imie;
+        $_SESSION['fr_nazwisko'] = $nazwisko;
+        $_SESSION['fr_data_wydania'] = $data_wydania;
 		
-		$magazyn=$_POST['magazyn'];  // z select wybor opcji 
-        $rzad=$_POST['rzad'];  // z select wybor opcji 
-        $pion=$_POST['pion'];  // z select wybor opcji 
-        $poziom=$_POST['poziom'];  // z select wybor opcji 
+		
 
         require_once "connect.php";
 		mysqli_report(MYSQLI_REPORT_STRICT);
@@ -86,50 +62,19 @@ if(isset($_POST['nr_index']))
            
             else
 			{
-												
-			$rezultat = $polaczenie->query("SELECT idProdukt FROM produkt WHERE nr_indeksu='$nr_index';");
-           
-				
-			if(!$rezultat) throw new Exception($polaczenie->error);
-				
-			$ile_produkt = $rezultat->num_rows;
-			if($ile_produkt>0)
-		{
-				$wszystko_OK=false;
-				$_SESSION['e_nr_index']="Istnieje już produkt o tym indeksie, zaktualizuj jego stan!";
-		}
-            
-        
-			if($wszystko_OK==true){						
-											
-			$polaczenie->begin_transaction();
-			if($polaczenie->query("INSERT INTO `produkt` (`nazwa`, `typ`, `nr_indeksu`, `ilosc`,  `producent`)
-                VALUES ('".$produkt."', '".$rodzaj."', '".$nr_index."', '".$ilosc."', '".$producent."');") &&
                 
-                ($polaczenie->query("INSERT INTO `skladowanie` (`rzad`, `miejsce_poziom`, `miejsce_pion`, `magazyn_idmagazyn`)
-                VALUES ('".$rzad."', '".$poziom."', '".$pion."', '".$magazyn."');")))
-			
-			{
-                $_SESSION['udanarejestracja']=true;
-				header('Location: udanadodanie.php'); 
-			}
-            $last_id=mysqli_insert_id($polaczenie);
-            $polaczenie->query("INSERT INTO produkt_has_skladowanie () VALUES((SELECT produkt.idProdukt from produkt where nr_indeksu='$nr_index'),$last_id)");
+                    if($polaczenie->query("INSERT INTO `klient`(`idKlient`, `Imie`, `Nazwisko`, `data_wydania`) VALUES ('','$imie','$nazwisko','$data_wydania')")){
 
-			$polaczenie->commit();
-		
-			}
-        
+                    }
 
-            $polaczenie->close();
+                    $_SESSION['pozytywnedodanie']="Pozytywnie dodałeś dane klienta przejdź dalej";					
             }
-
         }
         
 
         catch(Exception $e)
 		{
-            $polaczenie->rollback();
+            
 
 			echo "Błąd serwera.";
 echo '<br />Informacja o blędzie: ',$e;
@@ -158,6 +103,11 @@ echo '<br />Informacja o blędzie: ',$e;
     <script src='https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js'></script>
     <link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.0.3/css/font-awesome.css'>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     
     <link href="simple-sidebar.css" rel="stylesheet">
 </head>
@@ -401,191 +351,121 @@ select.list-dt:focus {
     <div class="row justify-content-center mt-0">
         <div class="col-11 col-sm-9 col-md-7 col-lg-6 text-center p-0 mt-3 mb-2">
             <div class="card px-0 pt-4 pb-0 mt-3 mb-3">
-                <h2><strong>Przyjęcie towaru</strong></h2>
-                <p>Dodaj produkt i przypisz mu miejsce składowania</p>
+                <h2><strong>Przyjęcie zamówienia od klienta</strong></h2>
+                <p>Dodaj dane klienta i produkty zamówione</p>
                 <div class="row">
                     <div class="col-md-12 mx-0">
+                    <?php
+			if (isset($_SESSION['pozytywnedodanie']))
+			{
+				echo '<div class="success" style="color:green">'.$_SESSION['pozytywnedodanie'].'</div>';
+				unset($_SESSION['pozytywnedodanie']);
+			}
+        ?>
                         <form id="msform" method="post">
                             <!-- progressbar -->
-                            <ul id="progressbar">
-                                <li class="active" id="account"><strong>Produkt</strong></li>
-                                <li id="personal"><strong>Składowanie</strong></li>
-                                <li id="confirm"><strong>Zakończenie</strong></li>
-                            </ul> <!-- fieldsets -->
+                            <h2>KROK 1</h2>
+                                                            </ul> <!-- fieldsets -->
                             <fieldset>
                                 <div class="form-card">
                                     <h2 class="fs-title">Produkt</h2> 
                                     <form method="post">
-                                    <input type="text"  name="produkt_nazwa" placeholder="Nazwa produktu"
+                                    <input type="text"  name="imie" placeholder="Podaj Imie"
                                     value="<?php
-			if (isset($_SESSION['fr_produkt_nazwa']))
+			if (isset($_SESSION['fr_imie']))
 			{
-				echo $_SESSION['fr_produkt_nazwa'];
-				unset($_SESSION['fr_produkt_nazwa']);
+				echo $_SESSION['fr_imie'];
+				unset($_SESSION['fr_imie']);
 			}
         ?>"
                                     /> 
                                     <?php
-			if (isset($_SESSION['e_produkt_nazwa']))
+			if (isset($_SESSION['e_imie']))
 			{
-				echo '<div class="error">'.$_SESSION['e_produkt_nazwa'].'</div>';
-				unset($_SESSION['e_produkt_nazwa']);
+				echo '<div class="error">'.$_SESSION['e_imie'].'</div>';
+				unset($_SESSION['e_imie']);
 			}
         ?>
-                                    <input type="text" name="rodzaj" placeholder="Rodzaj/Typ" 
+                                    <input type="text" name="nazwisko" placeholder="Podaj nazwisko" 
                                     value="<?php
-			if (isset($_SESSION['fr_rodzaj']))
+			if (isset($_SESSION['fr_nazwisko']))
 			{
-				echo $_SESSION['fr_rodzaj'];
-				unset($_SESSION['fr_rodzaj']);
+				echo $_SESSION['fr_nazwisko'];
+				unset($_SESSION['fr_nazwisko']);
 			}
         ?>"
                                     /> 
                                     <?php
-			if (isset($_SESSION['e_rodzaj']))
+			if (isset($_SESSION['e_nazwisko']))
 			{
-				echo '<div class="error">'.$_SESSION['e_rodzaj'].'</div>';
-				unset($_SESSION['e_rodzaj']);
+				echo '<div class="error">'.$_SESSION['e_nazwisko'].'</div>';
+				unset($_SESSION['e_nazwisko']);
 			}
         ?>
-                                    <input type="number" name="nr_index" placeholder="Wprowadź numer identyfikacyjny(5 cyfr)"
+                                    <input type="date" name="data_wydania" placeholder="Wybierz datę wydania paragonu"
                                     value="<?php
-			if (isset($_SESSION['fr_nr_index']))
+			if (isset($_SESSION['fr_data_wydania']))
 			{
-				echo $_SESSION['fr_nr_index'];
-				unset($_SESSION['fr_nr_index']);
+				echo $_SESSION['fr_data_wydania'];
+				unset($_SESSION['fr_data_wydania']);
 			}
         ?>"
                                     />
                                     <?php
-			if (isset($_SESSION['e_nr_index']))
+			if (isset($_SESSION['e_data_wydania']))
 			{
-				echo '<div class="error">'.$_SESSION['e_nr_index'].'</div>';
-				unset($_SESSION['e_nr_index']);
+				echo '<div class="error">'.$_SESSION['e_data_wydania'].'</div>';
+				unset($_SESSION['e_data_wydania']);
 			}
         ?>
-                                    <input type="number" name="ilosc" placeholder="Wprowadź ilość" 
-                                    value="<?php
-			if (isset($_SESSION['fr_ilosc']))
-			{
-				echo $_SESSION['fr_ilosc'];
-				unset($_SESSION['fr_ilosc']);
-			}
-        ?>"
-                                    />
-                                    <?php
-			if (isset($_SESSION['e_ilosc']))
-			{
-				echo '<div class="error">'.$_SESSION['e_ilosc'].'</div>';
-				unset($_SESSION['e_ilosc']);
-			}
-        ?>
-                                    <input type="text" name="producent" placeholder="Podaj producenta"
-                                    value="<?php
-			if (isset($_SESSION['fr_producent']))
-			{
-				echo $_SESSION['fr_producent'];
-				unset($_SESSION['fr_producent']);
-			}
-        ?>" />
-         <?php
-			if (isset($_SESSION['e_producent']))
-			{
-				echo '<div class="error">'.$_SESSION['e_producent'].'</div>';
-				unset($_SESSION['e_producent']);
-			}
-        ?>
-                                </div> <input type="button" name="next" class="next action-button" value="Dalej" />
-                            </fieldset>
-                            <fieldset>
-                                <div class="form-card">
-                                    <h2 class="fs-title">Miejsce składowania</h2> 
-                                    <label for="password">Wybór magazynu:</label>                   
-                                     
-            <?php 
-
-require_once "connect.php";
-mysqli_report(MYSQLI_REPORT_STRICT);
-
-
-    $polaczenie = new mysqli($host, $db_user, $db_password, $db_name);
-    if ($polaczenie->connect_errno!=0)
-    {
-        throw new Exception(mysqli_connect_errno());
-    }
-             $email=$_SESSION['email'];
-            $sql="SELECT magazyn.idmagazyn,magazyn.nazwa_magazyn from magazyn inner join pracownik on pracownik.magazyn_idmagazyn=magazyn.idmagazyn WHERE pracownik.email='$email'";
-            if($result=mysqli_query($polaczenie,$sql)){
-                if(mysqli_num_rows($result)>0){
-                    while($row=mysqli_fetch_array($result)){
-                        $dbselected=$row['nazwa_magazyn'];
-                        $idmagazynu=$row['idmagazyn'];
-
-                    }
-                }
-            }
-            
-            $options=array('1','2','3');
-            echo "<select name='magazyn' id='input1'>";
-            foreach($options as $option){
-                if($idmagazynu==$option){
-                    echo "<option value='$option'>$dbselected</option>";
-                }
-            }
-            echo "</select>";
-          
-           
-
-            ?>
-
-
-            <label for="password">Miejsce w rzędzie:</label>                   
-                                     <select name="rzad" id="input1">
-				<option value="1">Rząd 1</option>
-				<option value="2">Rząd 2</option>
-				<option value="3">Rząd 3</option>
-                <option value="4">Rząd 4</option>
-				<option value="5">Rząd 5</option>
-				<option value="6">Rząd 6</option>
-                <option value="7">Rząd 7</option>
-				<option value="8">Rząd 8</option>
-				<option value="9">Rząd 9</option>
-                <option value="10">Rząd 10</option>
-			</select>
-            <label for="password">Wybór miejsca w pionie:</label>                   
-                                     <select name="pion" id="input1">
-                <option value="1">Pion 1</option>
-				<option value="2">Pion 2</option>
-				<option value="3">Pion 3</option>
-                <option value="4">Pion 4</option>
-				<option value="5">Pion 5</option>
-				<option value="6">Pion 6</option>
-                <option value="7">Pion 7</option>
-				<option value="8">Pion 8</option>
-				<option value="9">Pion 9</option>
-                <option value="10">Pion 10</option>
-			</select>
-            <label for="password">Wybór miejsca w poziomie:</label>                   
-                                     <select name="poziom" id="input1">
-				<option value="1">Poziom 1</option>
-				<option value="2">Poziom 2</option>
-				<option value="3">Poziom 3</option>
-                <option value="4">Poziom 4</option>
-			</select>
-                                
-                                            
-            
-        </div> <input type="button" name="previous" class="previous action-button-previous" value="Wstecz" /> <input type="submit" name="make_send" class="next action-button" value="Zapisz" />
+                                   
+             <input type="submit" name="make_send" class="next action-button" value="Zapisz dane" /> 
         </form>
                             </fieldset>
+
+                            <h2>KROK 2</h2>
+                            <fieldset>
                            
+                            <div class="table-responsive">
+    <table class="table table-bordered" id="crud_table">
+     <tr>
+      <th width="45%">Nazwa Produktu</th>
+      <th width="30%">Identyfikator</th>
+      <th width="10%">Ilość</th>
+      <th width="5%"></th>
+     </tr>
+     <tr>
+      <td contenteditable="true" class="item_name"></td>
+      <td contenteditable="true" class="item_code"></td>
+      <td contenteditable="true" class="item_ilosc"></td>
+      
+      <td></td>
+     </tr>
+     
+    </table>
+    <div align="right">
+     <button type="button" name="add" id="add" class="btn btn-success btn-xs">+</button>
+    </div>
+    <div align="center">
+     <button type="button" name="save" id="save" class="btn btn-info">Zapisz</button>
+    </div>
+    <br />
+    <div id="inserted_item_data"></div>
+   </div>
+   
+  
+        
+                            </fieldset>
                             
+
+                           
+                            </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    </div>         
+          
 
 <script>
 $(document).ready(function(){
@@ -655,6 +535,75 @@ return false;
 });
 
 
+});
+</script>
+
+
+
+<script>
+$(document).ready(function(){
+ var count = 1;
+ $('#add').click(function(){
+  count = count + 1;
+  var html_code = "<tr id='row"+count+"'>";
+   html_code += "<td contenteditable='true' class='item_name'></td>";
+   html_code += "<td contenteditable='true' class='item_code'></td>";
+   html_code += "<td contenteditable='true' class='item_ilosc'></td>";
+  
+   html_code += "<td><button type='button' name='remove' data-row='row"+count+"' class='btn btn-danger btn-xs remove'>-</button></td>";   
+   html_code += "</tr>";  
+   $('#crud_table').append(html_code);
+ });
+ 
+ $(document).on('click', '.remove', function(){
+  var delete_row = $(this).data("row");
+  $('#' + delete_row).remove();
+ });
+ 
+ $('#save').click(function(){
+  var item_name = [];
+  var item_code = [];
+  var item_ilosc = [];
+ 
+  $('.item_name').each(function(){
+   item_name.push($(this).text());
+  });
+  $('.item_code').each(function(){
+   item_code.push($(this).text());
+  });
+  $('.item_ilosc').each(function(){
+   item_ilosc.push($(this).text());
+  });
+ 
+  $.ajax({
+   url:"produkt_klient.php",
+   method:"POST",
+   data:{item_name:item_name, item_code:item_code, item_ilosc:item_ilosc},
+   success:function(data){
+    alert(data);
+    $("td[contentEditable='true']").text("");
+    for(var i=2; i<= count; i++)
+    {
+     $('tr#'+i+'').remove();
+    }
+    fetch_item_data();
+   }
+  });
+ });
+ 
+ function fetch_item_data()
+ {
+  $.ajax({
+   url:"fetch.php",
+   method:"POST",
+   success:function(data)
+   {
+    $('#inserted_item_data').html(data);
+   }
+  })
+ }
+ fetch_item_data();
+ 
 });
 </script>
 </body>

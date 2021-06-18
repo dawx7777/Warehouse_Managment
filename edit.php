@@ -58,54 +58,99 @@ if(!isset($_SESSION['zalogowany']))
 
 
 <div class="result">
-   <?php
 
-	//////////////////////////////////////////////////////////
+</div>
+  
+
+  <?php 
+
+
 require_once "connect.php";
 $polaczenie = @new mysqli($host, $db_user, $db_password, $db_name);
 if ($polaczenie->connect_errno!=0) die ("Error: ".$polaczenie->connect_errno);
 $output='';
 
-$id = $_POST['query']; 
-  
+$ind = $_POST['query']; 
+
+
+
+
             
-
-    $query= "SELECT produkt.idProdukt, produkt.nazwa, produkt.typ, produkt.nr_indeksu, produkt.ilosc, produkt.producent, skladowanie.rzad,skladowanie.miejsce_poziom,skladowanie.miejsce_pion, magazyn.nazwa_magazyn from (((produkt inner join produkt_has_skladowanie on produkt.idProdukt=produkt_has_skladowanie.Produkt_idProdukt) inner join skladowanie on skladowanie.idSkladowanie=produkt_has_skladowanie.Skladowanie_idSkladowanie) inner join magazyn on magazyn.idmagazyn=skladowanie.magazyn_idmagazyn) WHERE produkt.nr_indeksu  LIKE '%".$id."%' ";
-	  
-	 $wynik = $polaczenie->query($query);
-	if(!$wynik) die ("Brak dostępu do bazy danych.");
-	$ile_znalezionych = $wynik->num_rows;
-	if ($ile_znalezionych > 0)
-	{   
-	echo '<div style=" font-size:20px; text-align:center; margin-top:15px;">'."Dane poszukiwanego produktu".'</div>'; //dodanie paska z historia wizyt
-	 while($results = $wynik->fetch_array($ile_znalezionych))
-		{    
-            for($i=0; $i < $ile_znalezionych; $i++){    
-			$output.= "<p><h2>"."ID: ".$results['idProdukt']."</h2>"."Nazwa: ".$results['nazwa']."<br>Typ: ".$results['typ']."<br>Numer indeksu: ".$results['nr_indeksu']."<br>Ilość: ".$results['ilosc']."<br />Producent: ".$results['producent'].	"<br />Magazyn: ".$results['nazwa_magazyn']."<br />Rząd: ".$results['rzad']."<br />Miejsce_poziom: ".$results['miejsce_poziom']."<br />Miejsce_pion: ".$results['miejsce_pion']."</p>";
+            $query="SELECT idProdukt, nazwa, typ, nr_indeksu, producent FROM produkt WHERE nr_indeksu='$ind'";
+            $wynik = $polaczenie->query($query);
+            if(!$wynik) die ("Brak dostępu do bazy danych.");
+            $ile_znalezionych = $wynik->num_rows;
+            
+            while($row = $wynik->fetch_assoc()) 
+            {
+            $id = $row['idProdukt'];
+            $nazwa = $row['nazwa'];
+            $typ = $row['typ'];
+            $nr_indeksu = $row['nr_indeksu'];
+            $producent = $row['producent'];
             }
+
+
+echo ' <br>
+		<form action="edit.php" method="post">
+		<input type="hidden" name="save" value="True">
+		<input type="hidden" name="ud_id" value="'.$id.'" >
+	Nazwa:  		<br />	
+		<input type="text" 	name="ud_nazwa" value= "'.$nazwa.'" 	><br>
+	Typ: 	<br />	
+		<input type="text" 	name="ud_typ"  value= "'.$typ.'" 	><br>
+	Producent:		<br />	
+		<input type="text"	name="ud_producent" 	value= "'.$producent.'" ><br>
+	Numer indeksu: <br />
+		<input type="text" 	name="ud_nrindeksu" value= "'.$nr_indeksu.'" minlenght=5><br>
+		<input type="Submit" style="margin-top:12px; width:150px;" value="Zaktualizuj dane">
+			</form><br>';
+			
+$ud_id=$_POST['ud_id'];			
+$ud_nazwa=$_POST['ud_nazwa'];
+$ud_typ=$_POST['ud_typ'];
+$ud_producent=$_POST['ud_producent'];
+$ud_nrindeksu=$_POST['ud_nrindeksu'];
+
+
+	If (isset($_POST['save'])  == 'True')  //sprawdzenie czy formularz zostal wyslany jak tak to przechodzimy dalej
+{
 		
-		}
-		echo $output;
- echo "<form action='lokalizacjaproduktu.php' method='POST'>
-            <input type='hidden' name='query' value='$id'/>
-            <br /> <input type='submit' style='width: 200px;'value='Zmien lokalizacje produktu' />
-            </form>";
-
-            echo "<form action='edit.php' method='POST'>
-            <input type='hidden' name='query' value='$id'/>
-            <br /> <input type='submit' value='Edytuj produkt' />
-            </form>";
-	}
-	else 
+																						//  sprawdzamy czy pola zostaly wypelnione
+	if(isset ($_POST['ud_nazwa']) && $_POST['ud_nazwa']{1} && (isset ($_POST['ud_typ']) && $_POST['ud_typ']{2})
+			&& (isset ($_POST['ud_producent']) && $_POST['ud_producent']{1}) && (isset ($_POST['ud_nrindeksu']) && $_POST['ud_nrindeksu']{1})) 
 	{
-		echo "Nie znaleziono produktu.";
-	}
+
+		require_once "connect.php";
+		$pol = @new mysqli($host, $db_user, $db_password, $db_name);
+		if($pol->connect_error) die ("Połączenie z bazą niepowiodło się.");
+
+	$query="UPDATE produkt SET nazwa='$ud_nazwa', typ='$ud_typ', producent='$ud_producent', nr_indeksu='$ud_nrindeksu' WHERE idProdukt='$ud_id'";
+
+	$efekt =$pol->query($query);
+	if ($efekt) 
+    {
+        ?>
+    <script type="text/javascript">
+    location.href="stan.php";
+    </script>
+    <?php
+    }
+	}  else 
+		{ echo 'Pole nie może być puste & indeks musi skłądać się z 5 cyfr!';}
+			
+} 
 
 
-?>
-</div>
-  
 
+
+?></tbody> </table> 
+					</div>
+                    
+                </div>
+   </div>
+
+   </div>
    </div>
    </div>
 
